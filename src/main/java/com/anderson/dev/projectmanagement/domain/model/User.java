@@ -3,11 +3,10 @@ package com.anderson.dev.projectmanagement.domain.model;
 import java.util.UUID;
 
 public class User {
-
-    private UUID id;
-    private String username;
-    private String email;
-    private String password;
+    private final UUID id;
+    private final String username;
+    private final String email;
+    private final String password;
 
     public User(UUID id, String username, String email, String password) {
         this.id = id;
