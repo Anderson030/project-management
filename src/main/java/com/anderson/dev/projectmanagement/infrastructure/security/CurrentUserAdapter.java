@@ -11,9 +11,10 @@ public class CurrentUserAdapter implements CurrentUserPort {
 
     @Override
     public UUID getCurrentUserId() {
-        return (UUID) SecurityContextHolder
-                .getContext()
-                .getAuthentication()
-                .getPrincipal();
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof String) {
+            return UUID.fromString((String) principal);
+        }
+        throw new IllegalStateException("User principal is not a String/UUID");
     }
 }

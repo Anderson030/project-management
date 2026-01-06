@@ -1,68 +1,58 @@
-const API = "http://localhost:8080/api";
+import axios from 'axios';
 
-async function safeJson(res) {
-  const text = await res.text();
-  return text ? JSON.parse(text) : null;
-}
+const api = axios.create({
+  baseURL: 'http://localhost:8080/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-export async function login() {
-  const res = await fetch(`${API}/auth/login`, { method: "POST" });
-  if (!res.ok) throw new Error("Login failed");
-  return safeJson(res);
-}
-
-export async function getProjects(token) {
-  const res = await fetch(`${API}/projects`, {
-    headers: {
-      Authorization: `Bearer ${token}`
+// Interceptor to add Token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
-  });
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
-  if (!res.ok) return [];
-  return safeJson(res) || [];
-}
-
-export async function createProject(token, name) {
-  const res = await fetch(`${API}/projects`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({ name })
-  });
-
-  if (!res.ok) {
-    if (res.status === 403) {
-      throw new Error("Forbidden: not owner");
+// Interceptor for Errors (401/403)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Clear invalid token and only redirect to login if we are not already there
+      localStorage.removeItem('token');
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
-    throw new Error("Create project failed");
+    // 403 should NOT log out, it just means permission denied for that specific resource
+    return Promise.reject(error);
+    return Promise.reject(error);
   }
+);
 
-  return safeJson(res);
-}
+export const login = async (username, password) => {
+  const response = await api.post('/auth/login', { username, password });
+  if (response.data.accessToken) {
+    localStorage.setItem('token', response.data.accessToken);
+  }
+  return response.data;
+};
 
-export async function createTask(token, projectId, title) {
-  const res = await fetch(`${API}/projects/${projectId}/tasks`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({ title })
-  });
+export const getProjects = () => api.get('/projects');
+export const createProject = (project) => api.post('/projects', project);
+export const activateProject = (projectId) => api.patch(`/projects/${projectId}/activate`);
 
-  if (!res.ok) throw new Error("Create task failed");
-  return safeJson(res);
-}
+export const getTasks = (projectId) => api.get(`/tasks?projectId=${projectId}`);
+export const createTask = (task) => api.post('/tasks', task);
+export const completeTask = (taskId) => api.patch(`/tasks/${taskId}/complete`);
+// Note: Backend might not have delete, checking... logic usually implies soft delete or just complete
+// But we will add the function call for completeness if we add it later
+export const deleteTask = (taskId) => api.delete(`/tasks/${taskId}`);
 
-export async function completeTask(token, taskId) {
-  const res = await fetch(`${API}/tasks/${taskId}/complete`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-
-  if (!res.ok) throw new Error("Complete task failed");
-}
+export default api;

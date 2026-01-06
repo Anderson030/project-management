@@ -18,13 +18,15 @@ public class CreateProjectService implements CreateProjectUseCase {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public UUID create(CreateProjectCommand command) {
+        System.out.println("CreateProjectService: Creating project for owner: " + command.ownerId());
         Project project = new Project(
                 UUID.randomUUID(),
                 command.ownerId(),
-                command.name()
-        );
+                command.name());
         projectRepository.save(project);
+        System.out.println("CreateProjectService: Project saved with ID: " + project.getId());
         return project.getId();
     }
 }

@@ -6,7 +6,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "projects")
-public class ProjectEntity {
+public class ProjectEntity implements org.springframework.data.domain.Persistable<UUID> {
 
     @Id
     private UUID id;
@@ -22,15 +22,38 @@ public class ProjectEntity {
 
     private boolean deleted;
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<TaskEntity> tasks = new java.util.ArrayList<>();
+
+    @Transient
+    private boolean isNew = true;
+
     public enum Status {
         DRAFT,
         ACTIVE
     }
 
-    public ProjectEntity() {}
+    public ProjectEntity() {
+    }
 
+    @Override
     public UUID getId() {
         return id;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setNew(boolean isNew) {
+        this.isNew = isNew;
+    }
+
+    @PostLoad
+    @PostPersist
+    void markNotNew() {
+        this.isNew = false;
     }
 
     public void setId(UUID id) {
@@ -67,5 +90,13 @@ public class ProjectEntity {
 
     public void setOwnerId(UUID ownerId) {
         this.ownerId = ownerId;
+    }
+
+    public java.util.List<TaskEntity> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(java.util.List<TaskEntity> tasks) {
+        this.tasks = tasks;
     }
 }

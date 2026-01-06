@@ -6,13 +6,14 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "tasks")
-public class TaskEntity {
+public class TaskEntity implements org.springframework.data.domain.Persistable<UUID> {
 
     @Id
     private UUID id;
 
-    @Column(nullable = false)
-    private UUID projectId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", nullable = false)
+    private ProjectEntity project;
 
     @Column(nullable = false)
     private String title;
@@ -21,22 +22,42 @@ public class TaskEntity {
 
     private boolean deleted;
 
-    public TaskEntity() {}
+    @Transient
+    private boolean isNew = true;
 
+    public TaskEntity() {
+    }
+
+    @Override
     public UUID getId() {
         return id;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setNew(boolean isNew) {
+        this.isNew = isNew;
+    }
+
+    @PostLoad
+    @PostPersist
+    void markNotNew() {
+        this.isNew = false;
     }
 
     public void setId(UUID id) {
         this.id = id;
     }
 
-    public UUID getProjectId() {
-        return projectId;
+    public ProjectEntity getProject() {
+        return project;
     }
 
-    public void setProjectId(UUID projectId) {
-        this.projectId = projectId;
+    public void setProject(ProjectEntity project) {
+        this.project = project;
     }
 
     public String getTitle() {

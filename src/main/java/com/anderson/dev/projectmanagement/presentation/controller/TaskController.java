@@ -13,22 +13,26 @@ public class TaskController {
 
     private final CreateTaskUseCase createTaskUseCase;
     private final CompleteTaskUseCase completeTaskUseCase;
+    private final com.anderson.dev.projectmanagement.application.port.in.ListTasksUseCase listTasksUseCase;
 
     public TaskController(
             CreateTaskUseCase createTaskUseCase,
-            CompleteTaskUseCase completeTaskUseCase
-    ) {
+            CompleteTaskUseCase completeTaskUseCase,
+            com.anderson.dev.projectmanagement.application.port.in.ListTasksUseCase listTasksUseCase) {
         this.createTaskUseCase = createTaskUseCase;
         this.completeTaskUseCase = completeTaskUseCase;
+        this.listTasksUseCase = listTasksUseCase;
     }
 
-    @PostMapping("/api/projects/{projectId}/tasks")
+    @GetMapping("/api/tasks")
+    public java.util.List<com.anderson.dev.projectmanagement.domain.model.Task> list(@RequestParam UUID projectId) {
+        return listTasksUseCase.list(projectId);
+    }
+
+    @PostMapping("/api/tasks")
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(
-            @PathVariable UUID projectId,
-            @RequestBody CreateTaskRequest request
-    ) {
-        createTaskUseCase.create(projectId, request.title());
+    public void create(@RequestBody CreateTaskRequest request) {
+        createTaskUseCase.create(request.projectId(), request.title());
     }
 
     @PatchMapping("/api/tasks/{id}/complete")

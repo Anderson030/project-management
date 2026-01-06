@@ -6,7 +6,9 @@ import com.anderson.dev.projectmanagement.infrastructure.persistence.entity.Proj
 import com.anderson.dev.projectmanagement.infrastructure.persistence.repository.JpaProjectRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
@@ -27,12 +29,19 @@ public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
         repository.save(toEntity(project));
     }
 
+    @Override
+    public List<Project> findAllByOwnerId(UUID ownerId) {
+        return repository.findAllByOwnerId(ownerId)
+                .stream()
+                .map(this::toDomain)
+                .toList();
+    }
+
     private Project toDomain(ProjectEntity entity) {
         Project project = new Project(
                 entity.getId(),
                 entity.getOwnerId(),
-                entity.getName()
-        );
+                entity.getName());
         if (entity.getStatus() == ProjectEntity.Status.ACTIVE) {
             project.activate();
         }
@@ -47,8 +56,7 @@ public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
         entity.setStatus(
                 project.getStatus() == Project.Status.ACTIVE
                         ? ProjectEntity.Status.ACTIVE
-                        : ProjectEntity.Status.DRAFT
-        );
+                        : ProjectEntity.Status.DRAFT);
         entity.setDeleted(project.isDeleted());
         return entity;
     }

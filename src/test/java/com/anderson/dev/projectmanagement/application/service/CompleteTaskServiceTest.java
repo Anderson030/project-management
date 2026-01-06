@@ -1,9 +1,9 @@
 package com.anderson.dev.projectmanagement.application.service;
 
 import com.anderson.dev.projectmanagement.application.port.out.*;
-import com.anderson.dev.projectmanagement.domain.exception.ProjectValidationException;
 import com.anderson.dev.projectmanagement.domain.exception.UnauthorizedAccessException;
 import com.anderson.dev.projectmanagement.domain.model.Project;
+import com.anderson.dev.projectmanagement.domain.model.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,12 +17,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ActivateProjectServiceTest {
+class CompleteTaskServiceTest {
 
     @Mock
-    private ProjectRepositoryPort projectRepository;
-    @Mock
     private TaskRepositoryPort taskRepository;
+    @Mock
+    private ProjectRepositoryPort projectRepository;
     @Mock
     private AuditLogPort auditLogPort;
     @Mock
@@ -30,65 +30,72 @@ class ActivateProjectServiceTest {
     @Mock
     private CurrentUserPort currentUserPort;
 
-    private ActivateProjectService service;
+    private CompleteTaskService service;
 
+    private UUID taskId;
     private UUID projectId;
     private UUID ownerId;
     private UUID otherUserId;
 
     @BeforeEach
     void setUp() {
-        service = new ActivateProjectService(
-                projectRepository,
+        service = new CompleteTaskService(
                 taskRepository,
+                projectRepository,
                 auditLogPort,
                 notificationPort,
                 currentUserPort);
+        taskId = UUID.randomUUID();
         projectId = UUID.randomUUID();
         ownerId = UUID.randomUUID();
         otherUserId = UUID.randomUUID();
     }
 
     @Test
-    void ActivateProject_WithTasks_ShouldSucceed() {
+    void CompleteTask_ShouldGenerateAuditAndNotification() {
+        Task task = new Task(taskId, projectId, "Test Task");
         Project project = new Project(projectId, ownerId, "Test Project");
 
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         when(currentUserPort.getCurrentUserId()).thenReturn(ownerId);
-        when(taskRepository.countByProjectId(projectId)).thenReturn(1);
 
-        service.activate(projectId);
+        service.complete(taskId);
 
-        assertEquals(Project.Status.ACTIVE, project.getStatus());
-        verify(projectRepository).save(project);
-        verify(auditLogPort).register("PROJECT_ACTIVATED", projectId);
-        verify(notificationPort).notify("Project activated: " + projectId);
+        assertTrue(task.isCompleted());
+        verify(taskRepository).save(task);
+        verify(auditLogPort).register("TASK_COMPLETED", taskId);
+        verify(notificationPort).notify("Task completed");
     }
 
     @Test
-    void ActivateProject_WithoutTasks_ShouldFail() {
+    void CompleteTask_AlreadyCompleted_ShouldFail() {
+        Task task = new Task(taskId, projectId, "Test Task");
+        task.complete();
         Project project = new Project(projectId, ownerId, "Test Project");
 
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         when(currentUserPort.getCurrentUserId()).thenReturn(ownerId);
-        when(taskRepository.countByProjectId(projectId)).thenReturn(0);
 
-        assertThrows(ProjectValidationException.class, () -> service.activate(projectId));
+        assertThrows(IllegalStateException.class, () -> service.complete(taskId));
 
-        verify(projectRepository, never()).save(any());
+        verify(taskRepository, never()).save(any());
         verifyNoInteractions(auditLogPort, notificationPort);
     }
 
     @Test
-    void ActivateProject_ByNonOwner_ShouldFail() {
+    void CompleteTask_ByNonOwner_ShouldFail() {
+        Task task = new Task(taskId, projectId, "Test Task");
         Project project = new Project(projectId, ownerId, "Test Project");
 
+        when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
         when(projectRepository.findById(projectId)).thenReturn(Optional.of(project));
         when(currentUserPort.getCurrentUserId()).thenReturn(otherUserId);
 
-        assertThrows(UnauthorizedAccessException.class, () -> service.activate(projectId));
+        assertThrows(UnauthorizedAccessException.class, () -> service.complete(taskId));
 
-        verify(projectRepository, never()).save(any());
+        verify(taskRepository, never()).save(any());
         verifyNoInteractions(auditLogPort, notificationPort);
     }
 }

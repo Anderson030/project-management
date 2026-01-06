@@ -17,8 +17,11 @@ public class CreateTaskService implements CreateTaskUseCase {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public void create(UUID projectId, String title) {
+        System.out.println("CreateTaskService: Creating task for project: " + projectId);
         Task task = new Task(UUID.randomUUID(), projectId, title);
         taskRepository.save(task);
+        System.out.println("CreateTaskService: Task saved with ID: " + task.getId());
     }
 }
