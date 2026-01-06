@@ -3,7 +3,6 @@
 A professional, full-stack application built to demonstrate **Clean Architecture (Hexagonal)**, **Spring Boot 3**, and **React**.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Java](https://img.shields.io/badge/Java-17-orange.svg)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.0-green.svg)
 ![React](https://img.shields.io/badge/React-18.0-blue.svg)
 
