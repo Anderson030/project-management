@@ -1,6 +1,6 @@
 # 🚀 Project & Task Management System
 
-A professional, full-stack application built to demonstrate **Clean Architecture (Hexagonal)** principles using **Java 17**, **Spring Boot 3**, and **React**.
+A professional, full-stack application built to demonstrate **Clean Architecture (Hexagonal)**, **Spring Boot 3**, and **React**.
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Java](https://img.shields.io/badge/Java-17-orange.svg)
