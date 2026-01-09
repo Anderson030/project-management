@@ -17,10 +17,9 @@ const ProtectedRoute = ({ children }) => {
     const payload = JSON.parse(atob(token.split('.')[1]));
     if (payload.exp * 1000 < Date.now()) {
       localStorage.removeItem('token');
-      return <Navigate to="/login" replace />;
+      return <Navigate to="/login" replace state={{ from: window.location.pathname }} />;
     }
   } catch (e) {
-    // If token is malformed, treat as invalid
     localStorage.removeItem('token');
     return <Navigate to="/login" replace />;
   }
@@ -34,7 +33,10 @@ function App() {
       <div className="app-container">
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route
+            path="/"
+            element={localStorage.getItem('token') ? <Navigate to="/projects" replace /> : <Navigate to="/login" replace />}
+          />
           <Route
             path="/projects"
             element={

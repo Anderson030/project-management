@@ -8,4 +8,6 @@ import java.util.UUID;
 public interface JpaTaskRepository extends JpaRepository<TaskEntity, UUID> {
 
     boolean existsByProjectIdAndDeletedFalse(UUID projectId);
+
+    java.util.List<TaskEntity> findByProjectIdAndDeletedFalse(UUID projectId);
 }

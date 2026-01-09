@@ -7,6 +7,10 @@ import java.util.UUID;
 
 public interface TaskRepositoryPort {
     Optional<Task> findById(UUID id);
+
+    List<Task> findByProjectId(UUID projectId);
+
     boolean existsActiveTask(UUID projectId);
+
     void save(Task task);
 }

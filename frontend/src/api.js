@@ -48,8 +48,8 @@ export const getProjects = () => api.get('/projects');
 export const createProject = (project) => api.post('/projects', project);
 export const activateProject = (projectId) => api.patch(`/projects/${projectId}/activate`);
 
-export const getTasks = (projectId) => api.get(`/tasks?projectId=${projectId}`);
-export const createTask = (task) => api.post('/tasks', task);
+export const getTasks = (projectId) => api.get(`/projects/${projectId}/tasks`);
+export const createTask = (task) => api.post(`/projects/${task.projectId}/tasks`, task);
 export const completeTask = (taskId) => api.patch(`/tasks/${taskId}/complete`);
 // Note: Backend might not have delete, checking... logic usually implies soft delete or just complete
 // But we will add the function call for completeness if we add it later

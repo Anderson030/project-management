@@ -6,8 +6,10 @@ import com.anderson.dev.projectmanagement.infrastructure.persistence.entity.Task
 import com.anderson.dev.projectmanagement.infrastructure.persistence.repository.JpaTaskRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Component
 public class TaskRepositoryAdapter implements TaskRepositoryPort {
@@ -24,6 +26,14 @@ public class TaskRepositoryAdapter implements TaskRepositoryPort {
     }
 
     @Override
+    public List<Task> findByProjectId(UUID projectId) {
+        return repository.findByProjectIdAndDeletedFalse(projectId)
+                .stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public boolean existsActiveTask(UUID projectId) {
         return repository.existsByProjectIdAndDeletedFalse(projectId);
     }
@@ -37,8 +47,7 @@ public class TaskRepositoryAdapter implements TaskRepositoryPort {
         Task task = new Task(
                 entity.getId(),
                 entity.getProjectId(),
-                entity.getTitle()
-        );
+                entity.getTitle());
         if (entity.isCompleted()) {
             task.complete();
         }

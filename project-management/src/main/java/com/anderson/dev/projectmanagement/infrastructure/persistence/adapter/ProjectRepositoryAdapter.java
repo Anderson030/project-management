@@ -23,6 +23,13 @@ public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
     }
 
     @Override
+    public java.util.List<Project> findAllByOwnerId(java.util.UUID ownerId) {
+        return repository.findAllByOwnerId(ownerId).stream()
+                .map(this::toDomain)
+                .toList();
+    }
+
+    @Override
     public void save(Project project) {
         repository.save(toEntity(project));
     }
@@ -31,8 +38,7 @@ public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
         Project project = new Project(
                 entity.getId(),
                 entity.getOwnerId(),
-                entity.getName()
-        );
+                entity.getName());
         if (entity.getStatus() == ProjectEntity.Status.ACTIVE) {
             project.activate();
         }
@@ -47,8 +53,7 @@ public class ProjectRepositoryAdapter implements ProjectRepositoryPort {
         entity.setStatus(
                 project.getStatus() == Project.Status.ACTIVE
                         ? ProjectEntity.Status.ACTIVE
-                        : ProjectEntity.Status.DRAFT
-        );
+                        : ProjectEntity.Status.DRAFT);
         entity.setDeleted(project.isDeleted());
         return entity;
     }
