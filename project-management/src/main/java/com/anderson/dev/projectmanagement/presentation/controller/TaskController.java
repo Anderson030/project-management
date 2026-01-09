@@ -1,5 +1,6 @@
 package com.anderson.dev.projectmanagement.presentation.controller;
 
+import com.anderson.dev.projectmanagement.application.port.in.CompleteTaskUseCase;
 import com.anderson.dev.projectmanagement.application.port.in.CreateTaskUseCase;
 import com.anderson.dev.projectmanagement.application.port.in.ListTasksUseCase;
 import com.anderson.dev.projectmanagement.domain.model.Task;

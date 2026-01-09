@@ -54,24 +54,33 @@ const Tasks = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   return (
     <div className="container fade-in">
-      <button
-        onClick={() => navigate('/')}
-        style={{
-          background: 'none',
-          border: 'none',
-          color: 'var(--text-secondary)',
-          cursor: 'pointer',
-          marginBottom: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          fontSize: '1rem'
-        }}
-      >
-        ← Volver al Dashboard
-      </button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <button
+          onClick={() => navigate('/')}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--text-secondary)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontSize: '1rem'
+          }}
+        >
+          ← Volver al Dashboard
+        </button>
+        <button className="btn btn-secondary" onClick={handleLogout} style={{ fontSize: '0.875rem' }}>
+          Cerrar Sesión
+        </button>
+      </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>

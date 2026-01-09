@@ -44,6 +44,11 @@ const Projects = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
   return (
     <div className="container fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
@@ -51,9 +56,14 @@ const Projects = () => {
           <h1 className="title">Proyectos</h1>
           <p className="subtitle">Gestiona tus proyectos y equipos</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-          + Nuevo Proyecto
-        </button>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button className="btn btn-secondary" onClick={handleLogout}>
+            Cerrar Sesión
+          </button>
+          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+            + Nuevo Proyecto
+          </button>
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>

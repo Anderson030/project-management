@@ -18,19 +18,19 @@ services:
       retries: 5
 
   backend:
-  build:
-    context: ./project-management
-    dockerfile: Dockerfile
-  environment:
-    SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/project_management
-    SPRING_DATASOURCE_USERNAME: projectadmin
-    SPRING_DATASOURCE_PASSWORD: password123
-    SPRING_JPA_HIBERNATE_DDL_AUTO: update
-  ports:
-    - "8080:8080"
-  depends_on:
-    postgres:
-      condition: service_healthy
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/project_management
+      SPRING_DATASOURCE_USERNAME: projectadmin
+      SPRING_DATASOURCE_PASSWORD: password123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 
   frontend:

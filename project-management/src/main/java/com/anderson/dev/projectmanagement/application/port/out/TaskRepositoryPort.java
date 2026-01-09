@@ -2,6 +2,7 @@ package com.anderson.dev.projectmanagement.application.port.out;
 
 import com.anderson.dev.projectmanagement.domain.model.Task;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
